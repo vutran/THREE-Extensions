@@ -10,5 +10,6 @@ var sunFlares = [
   [0.08, 0.825, 0.99, 800, 200, -700],
   [0.995, 0.025, 0.99, 7000, 7000, -700]
 ];
-sun = new THREE.Sun(scene, 'images/sun.png', 1500, 0xffffff, sunFlares);
+var sun = new THREE.Sun('images/sun.png', 1500, 0xffffff, sunFlares);
+scene.add(sun); // Add the new THREE.Sun instance to your scene instance
 ```
