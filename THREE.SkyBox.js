@@ -36,41 +36,41 @@ THREE.SkyBox.prototype.create = function(textures, size) {
     var addIndex       = 0,
         addLength      = 6;
     // Create the sides (same texture file)
-    for(addIndex = 0; addIndex < addLength; addIndex++) sides.push(textures);
+    for(addIndex = 0; addIndex < addLength; addIndex++) { sides.push(textures); }
+    // Reset the textures
+    textures = sides;
   }
-  else {
-    var textureIndex   = 0,
-        totalSides     = 6,
-        path           = false,
-        materials      = [],
-        shader         = THREE.ShaderLib['cube'];
-    for(textureIndex = 0; textureIndex < totalSides; textureIndex++) {
-      if(typeof textures[textureIndex] !== undefined) {
-        path = textures[textureIndex];
-        // Create the image
-        var img = new Image();
-        img.src = path;
-        // Create the texture
-        var texture = new THREE.Texture(img);
-        // Store the texture object into the image as a new property
-        img.texture = texture;
-        img.onload = function() {
-          this.texture.needsUpdate = true;
-        };
-        material = new THREE.MeshBasicMaterial({
-          color : 0xffffff,
-          map : texture,
-          side : THREE.BackSide
-        });
-        materials.push(material);
-        // Set the shader's cube mapping
-        shader.uniforms['tCube'].texture = materials;
-        // Create the mesh object
-        var geometry    = new THREE.CubeGeometry(size, size, size),
-            meshFace    = new THREE.MeshFaceMaterial(materials),
-            mesh        = new THREE.Mesh(geometry, meshFace);
-        skyBox.add(mesh);
-      }
+  var textureIndex   = 0,
+      totalSides     = 6,
+      path           = false,
+      materials      = [],
+      shader         = THREE.ShaderLib['cube'];
+  for(textureIndex = 0; textureIndex < totalSides; textureIndex++) {
+    if(typeof textures[textureIndex] !== undefined) {
+      path = textures[textureIndex];
+      // Create the image
+      var img = new Image();
+      img.src = path;
+      // Create the texture
+      var texture = new THREE.Texture(img);
+      // Store the texture object into the image as a new property
+      img.texture = texture;
+      img.onload = function() {
+        this.texture.needsUpdate = true;
+      };
+      material = new THREE.MeshBasicMaterial({
+        color : 0xffffff,
+        map : texture,
+        side : THREE.BackSide
+      });
+      materials.push(material);
+      // Set the shader's cube mapping
+      shader.uniforms['tCube'].texture = materials;
+      // Create the mesh object
+      var geometry    = new THREE.CubeGeometry(size, size, size),
+          meshFace    = new THREE.MeshFaceMaterial(materials),
+          mesh        = new THREE.Mesh(geometry, meshFace);
+      skyBox.add(mesh);
     }
   }
 };
