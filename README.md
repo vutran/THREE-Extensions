@@ -2,7 +2,7 @@
 
 Add a sun object into your THREE.js scene.
 
-# Usage
+## Usage
 
 ```js
 var sunFlares = [
@@ -12,4 +12,15 @@ var sunFlares = [
 ];
 var sun = new THREE.Sun('images/sun.png', 1500, 0xffffff, sunFlares);
 scene.add(sun); // Add the new THREE.Sun instance to your scene instance
+```
+
+# THREE.SkyBox
+
+Add a sky box object into your THREE.js scene.
+
+## Usage
+
+```js
+var skyBox = new THREE.SkyBox('images/skybox.jpg');
+scene.add(skyBox); // Add the new THREE.SkyBox instance to your scene instance
 ```

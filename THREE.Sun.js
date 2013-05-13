@@ -3,7 +3,7 @@
  *
  * Add a sun object into your THREE.js scene.
  *
- * @link https://github.com/vutran/THREESun
+ * @link https://github.com/vutran/THREE-Extensions
  * @author vutran / http://vu-tran.com/
  */
 THREE.Sun = function(texturePath, size, color, flares) {
@@ -26,7 +26,7 @@ THREE.Sun = function(texturePath, size, color, flares) {
 THREE.Sun.prototype = Object.create(THREE.Object3D.prototype);
 
 /**
- * Creates a new lens flare and appends it to the given scene
+ * Creates a new sun (composed of THREE.LensFlare) and appends it to the given scene
  *
  * @params string|array texturePath       A filename to the path of the texture file or an array of filenames (max 3)
  * @params int size                       The size of the lens flare
