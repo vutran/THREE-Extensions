@@ -24,3 +24,16 @@ Add a sky box object into your THREE.js scene.
 var skyBox = new THREE.SkyBox('images/skybox.jpg');
 scene.add(skyBox); // Add the new THREE.SkyBox instance to your scene instance
 ```
+
+# THREE.ParticleLine
+
+Add a particle line object into your THREE.js scene.
+
+## Usage
+
+```js
+var particleLine = new THREE.ParticleLine(1, 0xff0000);
+scene.add(particleLine); // Add the new THREE.ParticleLine instance to your scene instance
+
+particleLine.update(); // call this method in your rendering loop
+```
