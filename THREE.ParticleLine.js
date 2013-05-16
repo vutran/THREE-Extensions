@@ -6,7 +6,7 @@
  * @link https://github.com/vutran/THREE-Extensions
  * @author vutran / http://vu-tran.com/
  */
-THREE.ParticleLine = function(lineWidth, color) {
+THREE.ParticleLine = function(geometry, lineWidth, color) {
 
   THREE.Object3D.call(this);
 
@@ -16,7 +16,7 @@ THREE.ParticleLine = function(lineWidth, color) {
   // Set default color
   if(color === undefined) { color = 0xffffff; }
 
-  this.create(lineWidth, color);
+  this.create(geometry, lineWidth, color);
 
   return this;
 
@@ -27,20 +27,18 @@ THREE.ParticleLine.prototype = Object.create(THREE.Object3D.prototype);
 /**
  * Create a new particle line
  *
- * // Technical notes: create a line, and add particles into the vertices of the line
- * // and while rendering, move the particle system along the vertices.
- *
+ * @param THREE.Geometry geometry
  * @param int lineWidth
  * @param string color
  * @param int speed
  * @return void
  */
-THREE.ParticleLine.prototype.create = function(lineWidth, color) {
+THREE.ParticleLine.prototype.create = function(geometry, lineWidth, color) {
   // Set properties
-  this.lineGeo             = new THREE.Geometry(),
+  this.lineGeo             = (geometry) ? geometry : new THREE.Geometry(),
   this.particleCount       = 1,
   this.particles           = new THREE.Geometry(),
-  this.speed               = 1;
+  this.speed               = 10;
   // Set local variables
   var particleLine         = this,
       lineMaterialParams   = {
@@ -54,11 +52,6 @@ THREE.ParticleLine.prototype.create = function(lineWidth, color) {
       lineMaterial        = new THREE.LineBasicMaterial(lineMaterialParams),
       line                = false,
       particleMaterial    = new THREE.ParticleBasicMaterial({color: 0xff0000, size: 10});
-  // Create the line vertices
-  this.lineGeo.vertices.push(new THREE.Vector3(-100, 100, 50));
-  this.lineGeo.vertices.push(new THREE.Vector3(100, 100, 50));
-  this.lineGeo.vertices.push(new THREE.Vector3(100, 100, 200));
-  this.lineGeo.vertices.push(new THREE.Vector3(-200, 100, 200));
   // Create the line based on the vertices
   var line = new THREE.Line(this.lineGeo, lineMaterial);
   // Create particles and place them on the first vertex
@@ -73,8 +66,8 @@ THREE.ParticleLine.prototype.create = function(lineWidth, color) {
       current : p,
       next : (p + 1)
     };
-    particle.move.nextVector = this.lineGeo.vertices[particle.move.next];
-    particle.move.diff = particle.clone().sub(particle.move.nextVector);
+    particle.move.nextVector = (this.lineGeo.vertices[particle.move.next] !== undefined) ? this.lineGeo.vertices[particle.move.next] : new THREE.Geometry();
+    particle.move.diff = (particle.move.nextVector) ? particle.clone().sub(particle.move.nextVector) : new THREE.Geometry();
     this.particles.vertices.push(particle);
   }
   this.particleSystem = new THREE.ParticleSystem(this.particles, particleMaterial);
@@ -88,6 +81,8 @@ THREE.ParticleLine.prototype.create = function(lineWidth, color) {
 /**
  * Render update callback
  *
+ * // TODO: Update calculation for velocity to move along a line
+ *
  * @return void
  */
 THREE.ParticleLine.prototype.update = function() {
@@ -99,6 +94,7 @@ THREE.ParticleLine.prototype.update = function() {
     if(particle.animate) {
       // Create the velocity vector
       var velocity = particle.move.diff.clone();
+      var move = new THREE.Vector3();
       if(velocity.x !== 0) {
         if(velocity.x < 0) {
           velocity.x = this.speed;
@@ -130,7 +126,7 @@ THREE.ParticleLine.prototype.update = function() {
         particle.move.current = particle.move.next;
         // Update the next index
         particle.move.next++;
-        // If the next vector vector
+        // If the next vector exists
         if(this.lineGeo.vertices[particle.move.next] !== undefined) {
           // Update the next vector
           particle.move.nextVector = this.lineGeo.vertices[particle.move.next];
@@ -149,17 +145,6 @@ THREE.ParticleLine.prototype.update = function() {
           particle.move.nextVector = this.lineGeo.vertices[particle.move.next].clone();
           particle.move.diff = particle.clone().sub(particle.move.nextVector);
           particle.animate = true;
-          /* // Update the current move index
-          particle.move.current = 0;
-          // Update the next index
-          particle.move.next = particle.move.current + 1;
-          // Update the next vector
-          particle.move.nextVector = this.lineGeo.vertices[particle.move.next];
-          // Update the next vector diff
-          particle.move.diff = particle.clone().sub(particle.move.nextVector);
-          var start = particle.start;
-          particle.set(start.x, start.y, start.z); */
-          
         }
       }
     }
