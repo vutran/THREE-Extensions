@@ -50,7 +50,13 @@ var geometry = new THREE.Geometry(); // create the geometry
 geometry.vertices.push(new THREE.Vector3(0, 0, 50)); // add a vertex
 geometry.vertices.push(new THREE.Vector3(0, 50, 150)); // add a vertex
 geometry.vertices.push(new THREE.Vector3(0, 100, 200)); // add a vertex
-var particleLine = new THREE.ParticleLine(geometry, 0xff0000); // create a particle line
+var particleLine = new THREE.ParticleLine({
+  geometry : geometry, // the line geometry object
+  lineWidth : 10, // line width
+  lineColor : 0xff0000, // line color,
+  color : 0xffff00, // particle color,
+  size : 30 // particle size
+});
 scene.add(particleLine); // Add the new instance to your scene
 
 particleLine.update(); // call this method in your rendering loop

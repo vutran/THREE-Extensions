@@ -5,27 +5,35 @@
  *
  * @link https://github.com/vutran/THREE-Extensions
  * @author vutran / http://vu-tran.com/
+ *
+ * @param object params
+ * @param THREE.Geometry geometry             The line geometry
+ * @param int lineWidth                       The width of the line
+ * @param int lineColor                       The color of the line
+ * @param string color                        The color of the particle
+ * @param int speed                           Speed of which the particle is moving through the line
+ * @param int particleSize                    The size of the particle
  */
-THREE.ParticleLine = function(geometry, lineWidth, lineColor, color, speed, particleSize) {
+THREE.ParticleLine = function(params) {
 
   THREE.Object3D.call(this);
 
   // Set default size
-  if(lineWidth === undefined) { lineWidth = 1; }
+  if(params.lineWidth === undefined) { params.lineWidth = 1; }
 
   // Set default color
-  if(lineColor === undefined) { lineColor = 0x000000; }
+  if(params.lineColor === undefined) { params.lineColor = 0x000000; }
 
   // Set default color
-  if(color === undefined) { color = 0xffffff; }
+  if(params.color === undefined) { params.color = 0xffffff; }
 
   // Set default speed
-  if(speed === undefined || isNaN(speed)) { speed = 1; }
+  if(params.speed === undefined || isNaN(params.speed)) { params.speed = 1; }
 
   // Set default particle size
-  if(particleSize === undefined || isNaN(particleSize)) { particleSize = 10; }
+  if(params.particleSize === undefined || isNaN(params.particleSize)) { params.particleSize = 10; }
 
-  this.create(geometry, lineWidth, lineColor, color, speed, particleSize);
+  this.create(params);
 
   return this;
 
@@ -36,50 +44,55 @@ THREE.ParticleLine.prototype = Object.create(THREE.Object3D.prototype);
 /**
  * Create a new particle line
  *
- * @param THREE.Geometry geometry
- * @param int lineWidth
- * @param string color
- * @param int speed
- * @param int particleSize
+ * @access public
+ * @param object params
  * @return void
  */
-THREE.ParticleLine.prototype.create = function(geometry, lineWidth, lineColor, color, speed, particleSize) {
+THREE.ParticleLine.prototype.create = function(params) {
   // Set properties
-  this.lineGeo             = (geometry) ? geometry : new THREE.Geometry(),
+  this.lineGeo             = (params.geometry) ? params.geometry : new THREE.Geometry(),
   this.particleCount       = 1,
   this.particles           = new THREE.Geometry(),
-  this.speed               = speed;
+  this.speed               = params.speed;
   // Set local variables
-  var particleLine         = this,
-      lineMaterialParams   = {
-        color : lineColor,
-        opacity : 1,
-        blending : THREE.NoBlending,
-        depthWrite : true,
-        vertexColors : false,
-        linewidth : lineWidth
-      },
-      lineMaterial        = new THREE.LineBasicMaterial(lineMaterialParams),
-      line                = false,
-      particleMaterialParams = {
-        color : color,
-        size : particleSize
-      }
-      particleMaterial    = new THREE.ParticleBasicMaterial(particleMaterialParams);
+  var
+    particleLine           = this,
+    lineMaterialParams     = {
+      color                : params.lineColor,
+      opacity              : 1,
+      blending             : THREE.NoBlending,
+      depthWrite           : true,
+      vertexColors         : false,
+      linewidth            : params.lineWidth
+    },
+    lineMaterial           = new THREE.LineBasicMaterial(lineMaterialParams),
+    line                   = false,
+    particleMaterialParams = {
+      color                : params.color,
+      size                 : params.particleSize
+    }
+    particleMaterial       = new THREE.ParticleBasicMaterial(particleMaterialParams);
   // Create the line based on the vertices
-  var line = new THREE.Line(this.lineGeo, lineMaterial);
+  var
+    line                   = new THREE.Line(this.lineGeo, lineMaterial),
+    p                      = 0,
+    pCount                 = this.particleCount;
   // Create particles and place them on the first vertex
-  for(var p = 0; p < this.particleCount; p++) {
-    var particle = this.lineGeo.vertices[0].clone();
+  for(p = 0; p < pCount; p++) {
+    var
+      vertex               = this.lineGeo.vertices[0],
+      nextVertex           = false,
+      particle             = vertex.clone();
     // Animate it!
     particle.animate = true;
     // Set the starting vector
-    particle.start = this.lineGeo.vertices[0].clone();
+    particle.start = vertex.clone();
     // Start the move properties
     particle.move = {
-      current : p,
-      next : (p + 1)
+      current             : p,
+      next                : (p + 1)
     };
+    // Set the next vertex
     particle.move.nextVector = (this.lineGeo.vertices[particle.move.next] !== undefined) ? this.lineGeo.vertices[particle.move.next] : new THREE.Geometry();
     particle.move.diff = (particle.move.nextVector) ? particle.clone().sub(particle.move.nextVector) : new THREE.Geometry();
     this.particles.vertices.push(particle);
@@ -95,8 +108,7 @@ THREE.ParticleLine.prototype.create = function(geometry, lineWidth, lineColor, c
 /**
  * Render update callback
  *
- * // TODO: Update calculation for velocity to move along a line
- *
+ * @access public
  * @return void
  */
 THREE.ParticleLine.prototype.update = function() {
@@ -107,8 +119,9 @@ THREE.ParticleLine.prototype.update = function() {
     var particle = this.particles.vertices[pCount];
     if(particle.animate) {
       // Create the velocity vector
-      var velocity = particle.move.diff.clone();
-      var move = new THREE.Vector3();
+      var
+        velocity = particle.move.diff.clone(),
+        move = new THREE.Vector3();
       if(velocity.x !== 0) {
         if(velocity.x < 0) {
           velocity.x = this.speed;
