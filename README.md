@@ -24,6 +24,20 @@ Add a sky box object into your THREE.js scene.
 var skyBox = new THREE.SkyBox('images/skybox.jpg');
 scene.add(skyBox); // Add the new instance to your scene
 ```
+```
+
+# THREE.SkyCan
+
+Add a cylinder sky box object into your THREE.js scene.
+
+## Usage
+
+```js
+var skyCan = new THREE.SkyCan({
+  textures : ['images/sides.jpg', 0xff0000, 0x0000ff] // top is red, bottom is blue
+});
+scene.add(skyCan); // Add the new instance to your scene
+```
 
 # THREE.ParticleLine
 

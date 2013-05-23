@@ -9,7 +9,7 @@
 THREE.SkyBox = function(textures, size) {
 
   THREE.Object3D.call(this);
-  
+
   if(size === undefined) { size = 1000; }
 
   // Verify that textures are defined

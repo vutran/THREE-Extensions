@@ -6,7 +6,7 @@
  * @link https://github.com/vutran/THREE-Extensions
  * @author vutran / http://vu-tran.com/
  */
-THREE.ParticleLine = function(geometry, lineWidth, color) {
+THREE.ParticleLine = function(geometry, lineWidth, lineColor, color, speed, particleSize) {
 
   THREE.Object3D.call(this);
 
@@ -14,9 +14,18 @@ THREE.ParticleLine = function(geometry, lineWidth, color) {
   if(lineWidth === undefined) { lineWidth = 1; }
 
   // Set default color
+  if(lineColor === undefined) { lineColor = 0x000000; }
+
+  // Set default color
   if(color === undefined) { color = 0xffffff; }
 
-  this.create(geometry, lineWidth, color);
+  // Set default speed
+  if(speed === undefined || isNaN(speed)) { speed = 1; }
+
+  // Set default particle size
+  if(particleSize === undefined || isNaN(particleSize)) { particleSize = 10; }
+
+  this.create(geometry, lineWidth, lineColor, color, speed, particleSize);
 
   return this;
 
@@ -31,27 +40,32 @@ THREE.ParticleLine.prototype = Object.create(THREE.Object3D.prototype);
  * @param int lineWidth
  * @param string color
  * @param int speed
+ * @param int particleSize
  * @return void
  */
-THREE.ParticleLine.prototype.create = function(geometry, lineWidth, color) {
+THREE.ParticleLine.prototype.create = function(geometry, lineWidth, lineColor, color, speed, particleSize) {
   // Set properties
   this.lineGeo             = (geometry) ? geometry : new THREE.Geometry(),
   this.particleCount       = 1,
   this.particles           = new THREE.Geometry(),
-  this.speed               = 10;
+  this.speed               = speed;
   // Set local variables
   var particleLine         = this,
       lineMaterialParams   = {
-        color : color,
+        color : lineColor,
         opacity : 1,
-        blending : THREE.AdditiveBlending,
+        blending : THREE.NoBlending,
         depthWrite : true,
-        vertexColors : true,
-        lineWidth : 1
+        vertexColors : false,
+        linewidth : lineWidth
       },
       lineMaterial        = new THREE.LineBasicMaterial(lineMaterialParams),
       line                = false,
-      particleMaterial    = new THREE.ParticleBasicMaterial({color: 0xff0000, size: 10});
+      particleMaterialParams = {
+        color : color,
+        size : particleSize
+      }
+      particleMaterial    = new THREE.ParticleBasicMaterial(particleMaterialParams);
   // Create the line based on the vertices
   var line = new THREE.Line(this.lineGeo, lineMaterial);
   // Create particles and place them on the first vertex
