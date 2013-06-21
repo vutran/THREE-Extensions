@@ -40,7 +40,7 @@ THREE.SkyCan.prototype = Object.create(THREE.Object3D.prototype);
  * Creates a sky can
  *
  * @access public
- * @param object $params
+ * @param object params
  * @return void
  */
 THREE.SkyCan.prototype.create = function(params) {

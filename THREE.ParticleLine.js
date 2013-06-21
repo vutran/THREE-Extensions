@@ -7,12 +7,13 @@
  * @author vutran / http://vu-tran.com/
  *
  * @param object params
- * @param THREE.Geometry geometry             The line geometry
- * @param int lineWidth                       The width of the line
- * @param int lineColor                       The color of the line
- * @param string color                        The color of the particle
- * @param int speed                           Speed of which the particle is moving through the line
- * @param int particleSize                    The size of the particle
+ * @param THREE.Geometry params.geometry             The line geometry
+ * @param int params.lineWidth                       The width of the line (set to 0 for transparent lines)
+ * @param int params.lineColor                       The color of the line
+ * @param string params.color                        The color of the particle
+ * @param int params.speed                           Speed of which the particle is moving through the line
+ * @param int params.particleSize                    The size of the particle
+ * @poaram string params.particleTexture             (Optional) The particle texture file
  */
 THREE.ParticleLine = function(params) {
 
@@ -32,6 +33,9 @@ THREE.ParticleLine = function(params) {
 
   // Set default particle size
   if(params.particleSize === undefined || isNaN(params.particleSize)) { params.particleSize = 10; }
+
+  // Set default particle texture
+  if(params.particleTexture === undefined) { params.particleTexture = false; }
 
   this.create(params);
 
@@ -65,16 +69,22 @@ THREE.ParticleLine.prototype.create = function(params) {
       vertexColors         : false,
       linewidth            : params.lineWidth
     },
+    transparentParams      = {
+      transparent          : true
+    },
     lineMaterial           = new THREE.LineBasicMaterial(lineMaterialParams),
+    transparentMaterial    = new THREE.MeshBasicMaterial(transparentParams),
     line                   = false,
     particleMaterialParams = {
       color                : params.color,
-      size                 : params.particleSize
-    }
+      size                 : params.particleSize,
+      map                  : (params.particleTexture) ? THREE.ImageUtils.loadTexture(params.particleTexture) : null,
+      transparent          : true
+    },
     particleMaterial       = new THREE.ParticleBasicMaterial(particleMaterialParams);
   // Create the line based on the vertices
   var
-    line                   = new THREE.Line(this.lineGeo, lineMaterial),
+    line                   = new THREE.Line(this.lineGeo, ((params.lineWidth) ? lineMaterial : transparentMaterial)),
     p                      = 0,
     pCount                 = this.particleCount;
   // Create particles and place them on the first vertex
@@ -120,35 +130,16 @@ THREE.ParticleLine.prototype.update = function() {
     if(particle.animate) {
       // Create the velocity vector
       var
-        velocity = particle.move.diff.clone(),
-        move = new THREE.Vector3();
-      if(velocity.x !== 0) {
-        if(velocity.x < 0) {
-          velocity.x = this.speed;
-        }
-        else {
-          velocity.x = -this.speed;
-        }
-      }
-      if(velocity.y !== 0) {
-        if(velocity.y < 0) {
-          velocity.y = this.speed;
-        }
-        else {
-          velocity.y = -this.speed;
-        }
-      }
-      if(velocity.z !== 0) {
-        if(velocity.z < 0) {
-          velocity.z = this.speed;
-        }
-        else {
-          velocity.z = -this.speed;
-        }
-      }
-      particle.add(velocity);
+        moveX         = (particle.move.nextVector.x - particle.start.x) * (this.speed / 1000),
+        moveY         = (particle.move.nextVector.y - particle.start.y) * (this.speed / 1000),
+        moveZ         = (particle.move.nextVector.z - particle.start.z) * (this.speed / 1000);
+        moveVector    = new THREE.Vector3(moveX, moveY, moveZ),
+        lastDistance  = particle.distanceTo(particle.move.nextVector),
+        reachedEnd    = false;
+      particle.add(moveVector);
+      reachedEnd = particle.distanceTo(particle.move.nextVector) > lastDistance;
       // If distance is reached, update the next index and vectors
-      if(particle.distanceTo(particle.move.nextVector) === 0) {
+      if(reachedEnd) {
         // Update the current move index
         particle.move.current = particle.move.next;
         // Update the next index
